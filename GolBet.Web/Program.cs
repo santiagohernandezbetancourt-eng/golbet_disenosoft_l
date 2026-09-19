@@ -1,4 +1,6 @@
 using GolBet.Repositories.Data;
+using GolBet.Repositories.Implementations;
+using GolBet.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,12 +8,25 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-//Este es el nuevo código 
+// ---- Módulo 2: DbContext ----
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// ---- Módulo 3: Repositorios ----
+// Open generic registration: one line, a repository for every entity
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+// Specific repositories
+builder.Services.AddScoped<IMatchRepository, MatchRepository>();
 
 var app = builder.Build();
+
+// ---- Módulo 3: Seed the database on startup ----
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await DbSeeder.SeedAsync(context);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
