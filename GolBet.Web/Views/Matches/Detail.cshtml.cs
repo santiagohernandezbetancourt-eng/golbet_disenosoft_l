@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace GolBet.Web.Views.Matches
 {
-    public class IndexModel : PageModel
+    public class DetailModel : PageModel
     {
         public void OnGet()
         {
